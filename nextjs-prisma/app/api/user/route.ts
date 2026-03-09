@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { Webhook } from "svix";
-import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
-export async function POST(request: Request) {
-  // try {
-  //   const { email, password } = await request.json();
-  //   return NextResponse.json({ message: "User created successfully" });
-  // } catch (error) {
-  //   return new Response("Error creating user", { status: 500 });
-  // }
+type Event = {
+  type: string;
+  data: {
+    first_name: string;
+    last_name: string;
+    email_addresses: { email_address: string }[];
+    id: string;
+  };
+};
+
+export async function POST(req: NextRequest) {
   const webhookSecret = process.env.CLERK_WEBHOOK_KEY;
 
   if (!webhookSecret) {
@@ -36,7 +41,23 @@ export async function POST(request: Request) {
       "svix-id": svixId,
       "svix-timestamp": svixTimestamp,
       "svix-signature": svixSignature,
+    }) as Event;
+
+    if (event.type !== "user.created") {
+      return NextResponse.json({ error: "Ignore event" }, { status: 400 });
+    }
+
+    const { first_name, last_name, email_addresses, id } = event.data;
+
+    await prisma.user.create({
+      data: {
+        email: email_addresses[0].email_address,
+        name: `${first_name} ${last_name}`,
+        clerkId: id,
+      },
     });
+
+    return NextResponse.json({ message: "Success" }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: "Webhook verification failed" },

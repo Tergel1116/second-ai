@@ -9,12 +9,13 @@ datasource db {
 
 model User {
   id         String    @id @unique @default(uuid())
-  clerkId   String    @unique
+  clerkId    String    @unique
   isVerified Boolean   @default(false)
   email      String    @unique
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   articles   Article[]
+  name       String
 }
 
 model Article {
