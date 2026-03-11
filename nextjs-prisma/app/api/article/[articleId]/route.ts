@@ -22,6 +22,9 @@ export async function GET(
     return NextResponse.json({ message: "Successful" }, { status: 200 });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: "Failed" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Failed to fetch article" },
+      { status: 500 },
+    );
   }
 }

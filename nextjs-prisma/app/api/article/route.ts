@@ -69,7 +69,7 @@ export async function GET() {
       { status: 200 },
     );
   } catch (error) {
-    console.log(error)
-    return NextResponse.json({message: "Failed"}, {status:400})
+    console.log(error);
+    return NextResponse.json({ message: "Failed" }, { status: 400 });
   }
 }
